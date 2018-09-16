@@ -6,6 +6,7 @@ using namespace std;
 #define all(v) v.begin(),v.end()
 #define MAX 1000
 #define MAX_LABEL 3
+#define MAX_QN_NODES 100
 #define AUTH 1
 #define PAP 2
 #define VEN 3
@@ -15,7 +16,7 @@ map<string,vector<string> >graph,graph_type,qn_typeList;
 map<string,map<string,int> >type,qnType;
 vector<int>qn_graph[MAX];
 vector<string>qn_node_label(MAX);
-vector<string>candList[MAX],assList[MAX];
+map< int , vector<string> >candList,assList;
 
 ///total label info
 map<string,vector<string> >labelInfo;
@@ -34,6 +35,7 @@ void show_candidate_list();
 void cand_cleaner_dfs();
 //void query_dfs(int u,int level,vector<pii>res,int qn);
 //bool searchNode(vector<pii>pp,int nd);
+void backtrack(map< int , vector<string> >assList,map< int , vector<string> >candList);
 void print_res(vector<pii>res);
 
 string toString(int num)
@@ -224,6 +226,11 @@ void qn_take_graph(ifstream & inF)
 
 }
 
+void backtrack(map< int , vector<string> >assList,map< int , vector<string> >candList)
+{
+
+}
+
 void gen_candidate_set(int nq)
 {
     ///stage 1
@@ -244,6 +251,11 @@ void gen_candidate_set(int nq)
     // it is left till now. Ei part e candidate list ta theke kichu node baad
     // deya hoy. Jeishob node actually query graph er ekta chach hishebe
     // used hoite parena
+
+    ///stage 3
+    /// ei backtrack() func ta soln khujbe :)
+
+    backtrack(assList,candList);
 
     show_candidate_list(nq,"candidate list");
 }
