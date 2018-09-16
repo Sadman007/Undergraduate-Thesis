@@ -20,8 +20,7 @@ map< int , vector<string> >candList,assList;
 
 ///total label info
 map<string,vector<string> >labelInfo;
-//vector<int>preli[MAX+5];
-//vector<int>candidate_list[MAX+5];
+
 int n_node,n_edge;
 
 void add_edge(string u,string v);
@@ -33,8 +32,7 @@ void gen_candidate_set(int nq);
 void show_adjacency_type();
 void show_candidate_list();
 void cand_cleaner_dfs();
-//void query_dfs(int u,int level,vector<pii>res,int qn);
-//bool searchNode(vector<pii>pp,int nd);
+
 void backtrack(map< int , vector<string> >assList,map< int , vector<string> >candList);
 void print_res(vector<pii>res);
 
