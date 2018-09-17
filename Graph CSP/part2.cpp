@@ -11,12 +11,16 @@ using namespace std;
 #define PAP 2
 #define VEN 3
 #define pii pair<int,int>
+#define mp_s_vs map<string,vector<string> >
+#define mp_i_vs map<int,vector<string> >
+#define mp_s_vs_it mp_s_vs::iterator
+#define mp_i_vs_it mp_i_vs::iterator
 
 map<string,vector<string> >graph,graph_type,qn_typeList;
 map<string,map<string,int> >type,qnType;
 vector<int>qn_graph[MAX];
 vector<string>qn_node_label(MAX);
-map< int , vector<string> >candList,assList;
+map< int, vector<string> >candList,assList;
 
 ///total label info
 map<string,vector<string> >labelInfo;
@@ -33,8 +37,9 @@ void show_adjacency_type();
 void show_candidate_list();
 void cand_cleaner_dfs();
 
-void backtrack(map< int , vector<string> >assList,map< int , vector<string> >candList);
-void print_res(vector<pii>res);
+void backtrack(mp_i_vs assList,mp_i_vs candList);
+bool check_compatability(mp_i_vs &assList);
+int get_best_id(mp_i_vs &candList,mp_i_vs &assList);
 
 string toString(int num)
 {
@@ -88,16 +93,16 @@ void show_graph(map<string,vector<string> >gg,string msg)
 
 void show_candidate_list(int nq,string msg)
 {
-     cout << "**** " << msg << " ****\n";
-        for(int i=1;i<=nq;i++)
+    cout << "**** " << msg << " ****\n";
+    for(int i=1; i<=nq; i++)
+    {
+        cout << qn_node_label[i] << ": ";
+        for(int j=0; j<(int)candList[i].size(); j++)
         {
-            cout << qn_node_label[i] << ": ";
-            for(int j=0;j<(int)candList[i].size();j++)
-            {
-                cout << candList[i][j] << " ";
-            }
-            cout << endl;
+            cout << candList[i][j] << " ";
         }
+        cout << endl;
+    }
 }
 
 void qn_show_graph(int nq,string msg)
@@ -224,9 +229,111 @@ void qn_take_graph(ifstream & inF)
 
 }
 
-void backtrack(map< int , vector<string> >assList,map< int , vector<string> >candList)
+bool hasFound(mp_i_vs gg)
 {
+    for(mp_i_vs_it it = gg.begin(); it!=gg.end(); it++)
+    {
+        int sz = (it->second).size();
+        if(!sz) return 0;
+    }
+    return 1;
+}
 
+bool isEmpty(mp_i_vs candList)
+{
+    for(mp_i_vs_it it = candList.begin(); it!=candList.end(); it++)
+    {
+        int sz = (it->second).size();
+        if(sz) return 0;
+    }
+    return 1;
+}
+
+void print_sol(mp_i_vs soln)
+{
+    for(mp_i_vs_it it=soln.begin(); it!=soln.end(); it++)
+    {
+        cout << it->first << ": " << (it->second)[0] << "\n";
+    }
+}
+
+void filterDomain(mp_i_vs &assList,mp_i_vs &candList)
+{
+    for(mp_i_vs_it it=assList.begin(); it!=assList.end(); it++)
+    {
+        int id = it->first;
+        vector<string>vc = it->second;
+        for(int i=0; i<(int)vc.size(); i++)
+        {
+            string itm = vc[i];
+            for(mp_i_vs_it it2=candList.begin(); it2!=candList.end(); it2++)
+            {
+                for(int j=0; j<(int)(it2->second).size(); j++)
+                {
+                    if((it2->second)[j]==itm) (it2->second).erase((it2->second).begin()+j);
+                }
+            }
+        }
+    }
+}
+
+bool check_compatability(mp_i_vs &assList)
+{
+    return 0;
+}
+int get_best_id(mp_i_vs &candList,mp_i_vs &assList)
+{
+    int MN = INT_MAX;
+    int best_ID = -1;
+
+    for(mp_i_vs_it it=candList.begin(); it!=candList.end(); it++)
+    {
+        int len = (it->second).size();
+        if(len<MN && len && assList[(it->first)].size()==0)
+        {
+            MN = len;
+            best_ID = it->first;
+        }
+    }
+    return best_ID;
+}
+
+void backtrack(mp_i_vs assList,mp_i_vs candList)
+{
+    if(hasFound(assList))
+    {
+        print_sol(assList);
+        return;
+    }
+    filterDomain(assList,candList);
+    //if(isEmpty(candList)) {cout << "NO SOLUTION\n"; return;}
+
+    int domID = get_best_id(candList,assList);
+    cout << ":D " << domID << endl;
+    if(domID==-1)
+    {
+        cout << "NO SOLUTION\n";
+        return;
+    }
+
+    for(int i=0; i<candList[domID].size(); i++)
+    {
+        assList[domID].pb(candList[domID][i]);
+        bool possible = check_compatability(assList);
+        if(!possible)
+        {
+            assList[domID].clear();
+            continue;
+        }
+        else
+        {
+            string prsrv = candList[domID][i];
+            candList[domID].erase(candList[domID].begin()+i);
+            backtrack(assList,candList);
+            candList[domID].pb(prsrv);
+            assList[domID].clear();
+        }
+    }
 }
 
 void gen_candidate_set(int nq)
@@ -241,8 +348,8 @@ void gen_candidate_set(int nq)
             string nd_0 = toString(i);
             /// jodi minimum labelwise connectivity assure kore,taile jabo
             if(qnType[nd_0]["a"]<=type[nd]["a"] &&
-               qnType[nd_0]["v"]<=type[nd]["v"] &&
-               qnType[nd_0]["p"]<=type[nd]["p"]) candList[i].pb(nd);
+                    qnType[nd_0]["v"]<=type[nd]["v"] &&
+                    qnType[nd_0]["p"]<=type[nd]["p"]) candList[i].pb(nd);
         }
     }
     ///stage 2
@@ -252,7 +359,7 @@ void gen_candidate_set(int nq)
 
     ///stage 3
     /// ei backtrack() func ta soln khujbe :)
-
+    for(int i=1; i<=nq; i++) assList[i];
     backtrack(assList,candList);
 
     show_candidate_list(nq,"candidate list");
@@ -272,10 +379,3 @@ int main()
     show_graph(labelInfo,"global label list");
     return 0;
 }
-
-
-/*
-1: 2 3
-2: 3 4 5
-3: 4 5 6 7
-*/
