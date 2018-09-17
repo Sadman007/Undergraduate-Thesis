@@ -34,7 +34,7 @@ void show_adjacency_type();
 void show_candidate_list();
 void cand_cleaner_dfs();
 
-void backtrack(mp_i_vs assList,mp_i_vs candList);
+void backtrack(mp_i_vs candList);
 bool check_compatability(int domID,string nd,mp_i_vs assList);
 int get_best_id(mp_i_vs candList,mp_i_vs assList);
 
@@ -317,7 +317,7 @@ int get_best_id(mp_i_vs candList,mp_i_vs assList)
     return best_ID;
 }
 
-void backtrack(mp_i_vs assList,mp_i_vs candList)
+void backtrack(mp_i_vs candList)
 {
     if(hasFound(assList))
     {
@@ -353,7 +353,7 @@ void backtrack(mp_i_vs assList,mp_i_vs candList)
         {
             string prsrv = candList[domID][i];
             candList[domID].erase(candList[domID].begin()+i);
-            backtrack(assList,candList);
+            backtrack(candList);
             candList[domID].pb(prsrv);
             sort(all(candList[domID]));
             assList[domID].clear();
@@ -387,7 +387,7 @@ void gen_candidate_set(int nq)
     /// ei backtrack() func ta soln khujbe :)
     for(int i=1; i<=nq; i++)
         assList[i];
-    backtrack(assList,candList);
+    backtrack(candList);
     show_candidate_list(nq,"candidate list");
 }
 
@@ -396,7 +396,7 @@ int main()
 {
     ifstream inF,qn_inF;
     inF.open("main_graph_new.txt");
-    qn_inF.open("query4.txt");
+    qn_inF.open("query1.txt");
 
     take_input(inF);
     qn_take_graph(qn_inF);
