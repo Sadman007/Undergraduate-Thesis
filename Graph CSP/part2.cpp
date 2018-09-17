@@ -35,8 +35,9 @@ void show_candidate_list();
 void cand_cleaner_dfs();
 
 void backtrack();
-bool check_compatability(int domID,string nd,mp_i_vs assList);
-int get_best_id(mp_i_vs candList,mp_i_vs assList);
+bool check_compatability(int domID,string nd,mp_i_vs &assList);
+int get_best_id(mp_i_vs &candList,mp_i_vs &assList);
+int num_of_soln = 0;
 
 string toString(int num)
 {
@@ -182,7 +183,7 @@ void take_input(ifstream & inF)
         sort(all(labelInfo[it->first]));
         labelInfo[it->first].erase(unique(all(labelInfo[it->first])),labelInfo[it->first].end());
     }
-    show_adjacency_type(type,"main graph adjacency type");
+    //show_adjacency_type(type,"main graph adjacency type");
 
 }
 
@@ -219,14 +220,14 @@ void qn_take_graph(ifstream & inF)
     {
         sort(all(qn_graph[i]));
     }
-    qn_show_graph(nq,"query adjacency list");
-    qn_show_type(nq,"query adjacency type");
+    //qn_show_graph(nq,"query adjacency list");
+    //qn_show_type(nq,"query adjacency type");
     gen_candidate_set(nq);
-    show_adjacency_type(qnType,"query graph adjacency type");
+    //show_adjacency_type(qnType,"query graph adjacency type");
 
 }
 
-bool hasFound(mp_i_vs gg)
+bool hasFound(mp_i_vs &gg)
 {
     for(mp_i_vs_it it = gg.begin(); it!=gg.end(); it++)
     {
@@ -237,7 +238,7 @@ bool hasFound(mp_i_vs gg)
     return 1;
 }
 
-bool isEmpty(mp_i_vs candList)
+bool isEmpty(mp_i_vs &candList)
 {
     for(mp_i_vs_it it = candList.begin(); it!=candList.end(); it++)
     {
@@ -248,7 +249,7 @@ bool isEmpty(mp_i_vs candList)
     return 1;
 }
 
-void print_sol(mp_i_vs soln)
+void print_sol(mp_i_vs &soln)
 {
     cout << "Solution!\n";
     for(mp_i_vs_it it=soln.begin(); it!=soln.end(); it++)
@@ -283,7 +284,7 @@ void filterDomain(mp_i_vs &assList,mp_i_vs &candList)
     }
 }
 
-bool check_compatability(int domID,string nd,mp_i_vs assList)
+bool check_compatability(int domID,string nd,mp_i_vs &assList)
 {
     for(int i=0; i<(int)qn_graph[domID].size(); i++)
     {
@@ -300,7 +301,7 @@ bool check_compatability(int domID,string nd,mp_i_vs assList)
     return 1;
 }
 
-int get_best_id(mp_i_vs candList,mp_i_vs assList)
+int get_best_id(mp_i_vs &candList,mp_i_vs &assList)
 {
     int MN = INT_MAX;
     int best_ID = -1;
@@ -321,14 +322,13 @@ void backtrack()
 {
     if(hasFound(assList))
     {
+        num_of_soln++;
         print_sol(assList);
         return;
     }
-
     filterDomain(assList,candList);
     if(isEmpty(candList))
     {
-        cout << "NO SOLUTION\n";
         return;
     }
 
@@ -336,9 +336,10 @@ void backtrack()
 
     if(domID==-1)
     {
-        cout << "NO SOLUTION\n";
         return;
     }
+
+    //mp_i_vs pruned_domain;
 
     for(int i=0; i<candList[domID].size(); i++)
     {
@@ -387,21 +388,23 @@ void gen_candidate_set(int nq)
     /// ei backtrack() func ta soln khujbe :)
     for(int i=1; i<=nq; i++)
         assList[i];
+    //show_candidate_list(nq,"candidate list");
     backtrack();
-    show_candidate_list(nq,"candidate list");
+    if(num_of_soln==0) cout << "NO SOLUTION\n";
+
 }
 
 
 int main()
 {
     ifstream inF,qn_inF;
-    inF.open("main_graph_new.txt");
-    qn_inF.open("query3.txt");
+    inF.open("test_graph2.txt");
+    qn_inF.open("query7.txt");
 
     take_input(inF);
     qn_take_graph(qn_inF);
 
-    show_graph(graph,"graph list");
-    show_graph(labelInfo,"global label list");
+    //show_graph(graph,"graph list");
+    //show_graph(labelInfo,"global label list");
     return 0;
 }
