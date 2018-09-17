@@ -306,10 +306,10 @@ void backtrack(mp_i_vs assList,mp_i_vs candList)
         return;
     }
     filterDomain(assList,candList);
-    //if(isEmpty(candList)) {cout << "NO SOLUTION\n"; return;}
+    if(isEmpty(candList)) {cout << "NO SOLUTION\n"; return;}
 
     int domID = get_best_id(candList,assList);
-    cout << ":D " << domID << endl;
+
     if(domID==-1)
     {
         cout << "NO SOLUTION\n";
