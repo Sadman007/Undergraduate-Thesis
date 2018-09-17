@@ -7,9 +7,6 @@ using namespace std;
 #define MAX 1000
 #define MAX_LABEL 3
 #define MAX_QN_NODES 100
-#define AUTH 1
-#define PAP 2
-#define VEN 3
 #define pii pair<int,int>
 #define mp_s_vs map<string,vector<string> >
 #define mp_i_vs map<int,vector<string> >
@@ -38,8 +35,8 @@ void show_candidate_list();
 void cand_cleaner_dfs();
 
 void backtrack(mp_i_vs assList,mp_i_vs candList);
-bool check_compatability(mp_i_vs &assList);
-int get_best_id(mp_i_vs &candList,mp_i_vs &assList);
+bool check_compatability(int domID,string nd,mp_i_vs assList);
+int get_best_id(mp_i_vs candList,mp_i_vs assList);
 
 string toString(int num)
 {
@@ -234,7 +231,8 @@ bool hasFound(mp_i_vs gg)
     for(mp_i_vs_it it = gg.begin(); it!=gg.end(); it++)
     {
         int sz = (it->second).size();
-        if(!sz) return 0;
+        if(!sz)
+            return 0;
     }
     return 1;
 }
@@ -244,16 +242,23 @@ bool isEmpty(mp_i_vs candList)
     for(mp_i_vs_it it = candList.begin(); it!=candList.end(); it++)
     {
         int sz = (it->second).size();
-        if(sz) return 0;
+        if(sz)
+            return 0;
     }
     return 1;
 }
 
 void print_sol(mp_i_vs soln)
 {
+    cout << "Solution!\n";
     for(mp_i_vs_it it=soln.begin(); it!=soln.end(); it++)
     {
-        cout << it->first << ": " << (it->second)[0] << "\n";
+        cout << it->first << ": ";
+        for(int i=0; i<(int)(it->second).size(); i++)
+        {
+            cout << (it->second)[i] << " ";
+        }
+        cout << "\n";
     }
 }
 
@@ -270,18 +275,32 @@ void filterDomain(mp_i_vs &assList,mp_i_vs &candList)
             {
                 for(int j=0; j<(int)(it2->second).size(); j++)
                 {
-                    if((it2->second)[j]==itm) (it2->second).erase((it2->second).begin()+j);
+                    if((it2->second)[j]==itm)
+                        (it2->second).erase((it2->second).begin()+j);
                 }
             }
         }
     }
 }
 
-bool check_compatability(mp_i_vs &assList)
+bool check_compatability(int domID,string nd,mp_i_vs assList)
 {
-    return 0;
+    for(int i=0; i<(int)qn_graph[domID].size(); i++)
+    {
+        int adj_nd = qn_graph[domID][i];
+        if(assList[adj_nd].size()==0)
+            continue;
+        else
+        {
+            string nd2 = assList[adj_nd][0];
+            if(!binary_search(all(graph[nd]),nd2))
+                return 0;
+        }
+    }
+    return 1;
 }
-int get_best_id(mp_i_vs &candList,mp_i_vs &assList)
+
+int get_best_id(mp_i_vs candList,mp_i_vs assList)
 {
     int MN = INT_MAX;
     int best_ID = -1;
@@ -305,8 +324,13 @@ void backtrack(mp_i_vs assList,mp_i_vs candList)
         print_sol(assList);
         return;
     }
+
     filterDomain(assList,candList);
-    if(isEmpty(candList)) {cout << "NO SOLUTION\n"; return;}
+    if(isEmpty(candList))
+    {
+        cout << "NO SOLUTION\n";
+        return;
+    }
 
     int domID = get_best_id(candList,assList);
 
@@ -319,7 +343,7 @@ void backtrack(mp_i_vs assList,mp_i_vs candList)
     for(int i=0; i<candList[domID].size(); i++)
     {
         assList[domID].pb(candList[domID][i]);
-        bool possible = check_compatability(assList);
+        bool possible = check_compatability(domID,candList[domID][i],assList);
         if(!possible)
         {
             assList[domID].clear();
@@ -331,6 +355,7 @@ void backtrack(mp_i_vs assList,mp_i_vs candList)
             candList[domID].erase(candList[domID].begin()+i);
             backtrack(assList,candList);
             candList[domID].pb(prsrv);
+            sort(all(candList[domID]));
             assList[domID].clear();
         }
     }
@@ -349,7 +374,8 @@ void gen_candidate_set(int nq)
             /// jodi minimum labelwise connectivity assure kore,taile jabo
             if(qnType[nd_0]["a"]<=type[nd]["a"] &&
                     qnType[nd_0]["v"]<=type[nd]["v"] &&
-                    qnType[nd_0]["p"]<=type[nd]["p"]) candList[i].pb(nd);
+                    qnType[nd_0]["p"]<=type[nd]["p"])
+                candList[i].pb(nd);
         }
     }
     ///stage 2
@@ -359,9 +385,9 @@ void gen_candidate_set(int nq)
 
     ///stage 3
     /// ei backtrack() func ta soln khujbe :)
-    for(int i=1; i<=nq; i++) assList[i];
+    for(int i=1; i<=nq; i++)
+        assList[i];
     backtrack(assList,candList);
-
     show_candidate_list(nq,"candidate list");
 }
 
@@ -370,7 +396,7 @@ int main()
 {
     ifstream inF,qn_inF;
     inF.open("main_graph_new.txt");
-    qn_inF.open("query_graph.txt");
+    qn_inF.open("query4.txt");
 
     take_input(inF);
     qn_take_graph(qn_inF);
